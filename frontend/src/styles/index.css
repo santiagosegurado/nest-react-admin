@@ -2,11 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&family=Roboto:wght@400;700&display=swap');
+
+:root {
+  --brand-primary: #c1292e;
+  --brand-primary-dark: #a12328;
+  --brand-background: #ffffff;
+  --brand-active: #c1292e;
+  --brand-header-background: #e2e1e1;
+  --primary-red: #c1292e;
+  --red-hover: #c1292e;
+  --primary-white: #ffffff;
+  --white-hover: #f2f2f2;
+  --font-primary: 'Roboto', 'Helvetica', 'Helvetica Neue', 'Nunito Sans',
+    sans-serif;
+}
+
 @layer base {
   html,
   body,
   #root {
     @apply h-full;
+    font-family: var(--font-primary);
+    position: relative;
   }
   h1 {
     @apply text-2xl;
@@ -24,15 +42,16 @@
 
 @layer components {
   .btn {
-    @apply p-3 bg-blue-500 rounded-md focus:outline-none text-white;
-    @apply hover:bg-blue-700 transition-all;
-    @apply focus:ring disabled:opacity-50;
+    @apply p-3 bg-brandPrimary rounded-md focus:outline-none text-white;
+    @apply hover:bg-brandPrimaryDark transition-all;
+    @apply disabled:opacity-50;
   }
   .btn.danger {
     @apply bg-red-500 hover:bg-red-700;
   }
   .input {
     @apply rounded-md border-gray-300 transition-colors disabled:opacity-50;
+    @apply focus:ring-brandPrimary focus:border-brandPrimary;
   }
   .card {
     @apply p-5 rounded-md bg-white border;
@@ -44,8 +63,22 @@
     @apply flex flex-col lg:flex-row gap-5 rounded-lg p-3 shadow overflow-x-auto border;
   }
   .sidebar {
-    @apply fixed h-full w-72 p-5 shadow flex flex-col transform -translate-x-72 bg-white lg:translate-x-0 transition-transform;
+    @apply fixed h-full w-72 p-5 shadow flex flex-col gap-20 transform -translate-x-72 lg:translate-x-0 transition-transform;
   }
+
+  .sidebar::before {
+    content: '';
+    @apply absolute inset-0 bg-cover bg-center;
+    background-image: url('../assets/sidemenu-bg.jpg');
+    z-index: -2;
+  }
+
+  .sidebar::after {
+    content: '';
+    @apply absolute inset-0 bg-black opacity-50;
+    z-index: -1;
+  }
+
   .sidebar.show {
     @apply translate-x-0 !important;
   }
