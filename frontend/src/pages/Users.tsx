@@ -6,6 +6,7 @@ import { useQuery } from 'react-query';
 import Layout from '../components/layout';
 import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
+import RefreshButton from '../components/shared/RefreshButton';
 import UsersTable from '../components/users/UsersTable';
 import useAuth from '../hooks/useAuth';
 import CreateUserRequest from '../models/user/CreateUserRequest';
@@ -18,11 +19,12 @@ export default function Users() {
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [role, setRole] = useState('');
+  const [isRefetching, setIsRefetching] = useState(false);
 
   const [addUserShow, setAddUserShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     ['users', firstName, lastName, username, role],
     async () => {
       return (
@@ -33,9 +35,6 @@ export default function Users() {
           role: role || undefined,
         })
       ).filter((user) => user.id !== authenticatedUser.id);
-    },
-    {
-      refetchInterval: 1000,
     },
   );
 
@@ -52,9 +51,18 @@ export default function Users() {
       setAddUserShow(false);
       setError(null);
       reset();
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     }
+  };
+
+  const handleFilterChange = () => {
+    setIsRefetching(true);
+    refetch();
+    setTimeout(() => {
+      setIsRefetching(false);
+    }, 500);
   };
 
   return (
@@ -75,14 +83,20 @@ export default function Users() {
               className="input w-1/2"
               placeholder="First Name"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                handleFilterChange();
+              }}
             />
             <input
               type="text"
               className="input w-1/2"
               placeholder="Last Name"
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={(e) => {
+                setLastName(e.target.value);
+                handleFilterChange();
+              }}
             />
           </div>
           <div className="flex flex-row gap-5">
@@ -91,20 +105,32 @@ export default function Users() {
               className="input w-1/2"
               placeholder="Username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                handleFilterChange();
+              }}
             />
             <select
               name=""
               id=""
               className="input w-1/2"
               value={role}
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => {
+                setRole(e.target.value);
+                handleFilterChange();
+              }}
             >
               <option value="">All</option>
               <option value="user">User</option>
               <option value="editor">Editor</option>
               <option value="admin">Admin</option>
             </select>
+          </div>
+          <div className="flex items-center">
+            <RefreshButton
+              handleFilterChange={handleFilterChange}
+              isRefetching={isRefetching}
+            />
           </div>
         </div>
 

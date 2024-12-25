@@ -7,6 +7,7 @@ import CoursesTable from '../components/courses/CoursesTable';
 import Layout from '../components/layout';
 import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
+import RefreshButton from '../components/shared/RefreshButton';
 import useAuth from '../hooks/useAuth';
 import CreateCourseRequest from '../models/course/CreateCourseRequest';
 import courseService from '../services/CourseService';
@@ -14,21 +15,19 @@ import courseService from '../services/CourseService';
 export default function Courses() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isRefetching, setIsRefetching] = useState(false);
 
   const [addCourseShow, setAddCourseShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
   const { authenticatedUser } = useAuth();
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     ['courses', name, description],
     () =>
       courseService.findAll({
         name: name || undefined,
         description: description || undefined,
       }),
-    {
-      refetchInterval: 1000,
-    },
   );
 
   const {
@@ -44,9 +43,18 @@ export default function Courses() {
       setAddCourseShow(false);
       reset();
       setError(null);
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     }
+  };
+
+  const handleFilterChange = () => {
+    setIsRefetching(true);
+    refetch();
+    setTimeout(() => {
+      setIsRefetching(false);
+    }, 500);
   };
 
   return (
@@ -68,14 +76,26 @@ export default function Courses() {
               className="input w-1/2"
               placeholder="Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                handleFilterChange();
+              }}
             />
             <input
               type="text"
               className="input w-1/2"
               placeholder="Description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                handleFilterChange();
+              }}
+            />
+          </div>
+          <div className="flex items-center">
+            <RefreshButton
+              handleFilterChange={handleFilterChange}
+              isRefetching={isRefetching}
             />
           </div>
         </div>
@@ -83,7 +103,6 @@ export default function Courses() {
         <CoursesTable data={data} isLoading={isLoading} />
       </div>
 
-      {/* Add User Modal */}
       <Modal show={addCourseShow}>
         <div className="flex">
           <h1 className="font-semibold mb-3">Add Course</h1>
