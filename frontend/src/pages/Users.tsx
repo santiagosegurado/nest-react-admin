@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 
 import Layout from '../components/layout';
+import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
 import UsersTable from '../components/users/UsersTable';
 import useAuth from '../hooks/useAuth';
@@ -58,56 +59,57 @@ export default function Users() {
 
   return (
     <Layout>
-      <h1 className="font-semibold text-3xl mb-5">Manage Users</h1>
-      <hr />
-      <button
-        className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
-        onClick={() => setAddUserShow(true)}
-      >
-        <Plus /> Add User
-      </button>
+      <LayoutTitle title="Manage Users" />
 
-      <div className="table-filter mt-2">
-        <div className="flex flex-row gap-5">
-          <input
-            type="text"
-            className="input w-1/2"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <input
-            type="text"
-            className="input w-1/2"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
+      <div className="px-5 sm:px-10 py-5">
+        <button
+          className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
+          onClick={() => setAddUserShow(true)}
+        >
+          <Plus /> Add User
+        </button>
+        <div className="table-filter mt-2">
+          <div className="flex flex-row gap-5">
+            <input
+              type="text"
+              className="input w-1/2"
+              placeholder="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <input
+              type="text"
+              className="input w-1/2"
+              placeholder="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-row gap-5">
+            <input
+              type="text"
+              className="input w-1/2"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+            <select
+              name=""
+              id=""
+              className="input w-1/2"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="user">User</option>
+              <option value="editor">Editor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
         </div>
-        <div className="flex flex-row gap-5">
-          <input
-            type="text"
-            className="input w-1/2"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <select
-            name=""
-            id=""
-            className="input w-1/2"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="">All</option>
-            <option value="user">User</option>
-            <option value="editor">Editor</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
+
+        <UsersTable data={data} isLoading={isLoading} />
       </div>
-
-      <UsersTable data={data} isLoading={isLoading} />
 
       {/* Add User Modal */}
       <Modal show={addUserShow}>
