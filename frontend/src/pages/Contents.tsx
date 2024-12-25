@@ -8,6 +8,7 @@ import ContentsTable from '../components/content/ContentsTable';
 import Layout from '../components/layout';
 import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
+import RefreshButton from '../components/shared/RefreshButton';
 import useAuth from '../hooks/useAuth';
 import CreateContentRequest from '../models/content/CreateContentRequest';
 import contentService from '../services/ContentService';
@@ -19,6 +20,7 @@ export default function Course() {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isRefetching, setIsRefetching] = useState(false);
   const [addContentShow, setAddContentShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
@@ -31,17 +33,22 @@ export default function Course() {
     reset,
   } = useForm<CreateContentRequest>();
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     [`contents-${id}`, name, description],
     async () =>
       contentService.findAll(id, {
         name: name || undefined,
         description: description || undefined,
       }),
-    {
-      refetchInterval: 1000,
-    },
   );
+
+  const handleFilterChange = () => {
+    setIsRefetching(true);
+    refetch();
+    setTimeout(() => {
+      setIsRefetching(false);
+    }, 500);
+  };
 
   const saveCourse = async (createContentRequest: CreateContentRequest) => {
     try {
@@ -76,14 +83,27 @@ export default function Course() {
               className="input w-1/2"
               placeholder="Name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                handleFilterChange();
+              }}
             />
             <input
               type="text"
               className="input w-1/2"
               placeholder="Description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                handleFilterChange();
+              }}
+            />
+          </div>
+
+          <div className="flex items-center">
+            <RefreshButton
+              handleFilterChange={handleFilterChange}
+              isRefetching={isRefetching}
             />
           </div>
         </div>
