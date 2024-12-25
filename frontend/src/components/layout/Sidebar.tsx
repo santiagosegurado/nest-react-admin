@@ -2,6 +2,7 @@ import { BookOpen, Home, LogOut, Users } from 'react-feather';
 import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 
+import UrbanoLogoWhite from '../../assets/urbano-logo-white.png';
 import useAuth from '../../hooks/useAuth';
 import authService from '../../services/AuthService';
 import SidebarItem from './SidebarItem';
@@ -22,9 +23,12 @@ export default function Sidebar({ className }: SidebarProps) {
   };
 
   return (
-    <div className={'sidebar ' + className}>
-      <Link to="/" className="no-underline text-black">
-        <h1 className="font-semibold text-center">Carna Project</h1>
+    <div className={'sidebar' + className}>
+      <Link
+        to="/"
+        className="no-underline text-black flex items-center justify-center"
+      >
+        <img src={UrbanoLogoWhite} alt="" />
       </Link>
       <nav className="mt-5 flex flex-col gap-3 flex-grow">
         <SidebarItem to="/">
