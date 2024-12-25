@@ -6,6 +6,7 @@ import { useParams } from 'react-router';
 
 import ContentsTable from '../components/content/ContentsTable';
 import Layout from '../components/layout';
+import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
 import useAuth from '../hooks/useAuth';
 import CreateContentRequest from '../models/content/CreateContentRequest';
@@ -55,39 +56,40 @@ export default function Course() {
 
   return (
     <Layout>
-      <h1 className="font-semibold text-3xl mb-5">
-        {!userQuery.isLoading ? `${userQuery.data.name} Contents` : ''}
-      </h1>
-      <hr />
-      {authenticatedUser.role !== 'user' ? (
-        <button
-          className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
-          onClick={() => setAddContentShow(true)}
-        >
-          <Plus /> Add Content
-        </button>
-      ) : null}
+      <LayoutTitle
+        title={!userQuery.isLoading ? `${userQuery.data.name} Contents` : ''}
+      />
+      <div className="px-5 sm:px-10 py-5">
+        {authenticatedUser.role !== 'user' ? (
+          <button
+            className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
+            onClick={() => setAddContentShow(true)}
+          >
+            <Plus /> Add Content
+          </button>
+        ) : null}
 
-      <div className="table-filter">
-        <div className="flex flex-row gap-5">
-          <input
-            type="text"
-            className="input w-1/2"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            type="text"
-            className="input w-1/2"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+        <div className="table-filter">
+          <div className="flex flex-row gap-5">
+            <input
+              type="text"
+              className="input w-1/2"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <input
+              type="text"
+              className="input w-1/2"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
         </div>
-      </div>
 
-      <ContentsTable data={data} isLoading={isLoading} courseId={id} />
+        <ContentsTable data={data} isLoading={isLoading} courseId={id} />
+      </div>
 
       {/* Add User Modal */}
       <Modal show={addContentShow}>
