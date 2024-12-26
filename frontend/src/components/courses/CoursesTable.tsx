@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { AlertTriangle, Loader, X } from 'react-feather';
+import { ChangeEvent, useState } from 'react';
+import { AlertTriangle, Loader, Upload, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 
@@ -14,9 +14,24 @@ import TableItem from '../shared/TableItem';
 interface UsersTableProps {
   data: Course[];
   isLoading: boolean;
+  localImg: string | ArrayBuffer | null;
+  onSelectedImg: (id: string, e: ChangeEvent<HTMLInputElement | null>) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleButtonClick: () => void;
+  uploadImage: (id: string, file: File) => Promise<any>;
+  resetLocalImg: () => void;
 }
 
-export default function CoursesTable({ data, isLoading }: UsersTableProps) {
+export default function CoursesTable({
+  data,
+  isLoading,
+  localImg,
+  onSelectedImg,
+  fileInputRef,
+  handleButtonClick,
+  uploadImage,
+  resetLocalImg,
+}: UsersTableProps) {
   const { authenticatedUser } = useAuth();
   const [deleteShow, setDeleteShow] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -47,6 +62,7 @@ export default function CoursesTable({ data, isLoading }: UsersTableProps) {
   const handleUpdate = async (updateCourseRequest: UpdateCourseRequest) => {
     try {
       await courseService.update(selectedCourseId, updateCourseRequest);
+      await uploadImage(selectedCourseId, fileInputRef.current?.files[0]);
       setUpdateShow(false);
       reset();
       setError(null);
@@ -58,11 +74,21 @@ export default function CoursesTable({ data, isLoading }: UsersTableProps) {
   return (
     <>
       <div className="table-container">
-        <Table columns={['Name', 'Description', 'Created']}>
+        <Table columns={['', 'Name', 'Description', 'Created']}>
           {isLoading
             ? null
-            : data.map(({ id, name, description, dateCreated }) => (
+            : data.map(({ id, name, description, dateCreated, imgUrl }) => (
                 <tr key={id}>
+                  <TableItem>
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center">
+                      <img
+                        src={imgUrl || 'https://via.placeholder.com/40'}
+                        className="rounded-md"
+                        alt="Course Img"
+                        width="100%"
+                      />
+                    </div>
+                  </TableItem>
                   <TableItem>
                     <Link to={`/courses/${id}`}>{name}</Link>
                   </TableItem>
@@ -158,6 +184,7 @@ export default function CoursesTable({ data, isLoading }: UsersTableProps) {
             onClick={() => {
               setUpdateShow(false);
               setError(null);
+              resetLocalImg();
               reset();
             }}
           >
@@ -185,6 +212,35 @@ export default function CoursesTable({ data, isLoading }: UsersTableProps) {
             disabled={isSubmitting}
             {...register('description')}
           />
+          <div className="flex px-2 items-center flex-col gap-5">
+            <div className="flex items-center">
+              {localImg && (
+                <img
+                  src={typeof localImg === 'string' && localImg}
+                  width="150px"
+                  height="150px"
+                  className="rounded-md"
+                  alt="Course Img"
+                />
+              )}
+            </div>
+            <div className="flex flex-col-reverse lg:flex-row gap-2 w-full lg:items-center">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => onSelectedImg(selectedCourseId, e)}
+                ref={fileInputRef}
+                className="hidden"
+              />
+              <span
+                className={`text-brandPrimary px-4 py-2 flex flex-col lg:flex-row items-center justify-center gap-1 rounded-md flex-1 cursor-pointer`}
+                onClick={handleButtonClick}
+              >
+                <Upload />
+                Upload Image
+              </span>
+            </div>
+          </div>
           <button className="btn" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader className="animate-spin mx-auto" />
