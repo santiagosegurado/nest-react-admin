@@ -76,18 +76,21 @@ export default function Courses() {
   };
 
   const getImg = async (id: string) => {
-    const resp = await courseService.getImg(id);
-    return resp;
+    const imgUrl = await courseService.getImg(id);
+    return imgUrl;
+
   };
 
   const uploadImage = async (id: string, file: File) => {
     const resp = await courseService.uploadImage(id, file);
     if (resp) {
-      getImg(id);
+      await getImg(id);
     }
+    await refetch();
   };
 
-  const onSelectedImg = (
+  const onSelectedImg = async (
+
     id: string,
     e: ChangeEvent<HTMLInputElement | null>,
   ) => {
@@ -101,6 +104,7 @@ export default function Courses() {
       setLocalImg(fr.result);
     };
     fr.readAsDataURL(files[0]);
+
     uploadImage(id, files[0]);
   };
 

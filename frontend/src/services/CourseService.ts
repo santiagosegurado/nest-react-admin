@@ -33,15 +33,17 @@ class UserService {
     await apiService.delete(`/api/courses/${id}`);
   }
 
-  async uploadImage(id: string, file: File): Promise<any> {
+  async uploadImage(id: string, file: File) {
     const formData = new FormData();
     formData.append('file', file);
 
     return await apiService.post(`/api/courses/${id}/img`, formData);
   }
 
-  async getImg(id: string): Promise<any> {
-    return await apiService.get(`/api/courses/${id}/img`);
+
+  async getImg(id: string): Promise<{ imgUrl: string }> {
+    return (await apiService.get(`/api/courses/${id}/img`)).data;
+
   }
 }
 

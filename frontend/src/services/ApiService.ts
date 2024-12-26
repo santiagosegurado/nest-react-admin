@@ -3,6 +3,7 @@ import axios from 'axios';
 import authService from './AuthService';
 
 const axiosInstance = axios.create({
+  baseURL: '/',
   withCredentials: true,
 });
 
