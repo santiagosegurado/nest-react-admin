@@ -8,6 +8,7 @@ import ContentsTable from '../components/content/ContentsTable';
 import Layout from '../components/layout';
 import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
+import Pagination from '../components/shared/Pagination';
 import RefreshButton from '../components/shared/RefreshButton';
 import useAuth from '../hooks/useAuth';
 import CreateContentRequest from '../models/content/CreateContentRequest';
@@ -20,6 +21,8 @@ export default function Course() {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
   const [isRefetching, setIsRefetching] = useState(false);
   const [addContentShow, setAddContentShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
@@ -100,6 +103,26 @@ export default function Course() {
             />
           </div>
 
+          <select
+            name=""
+            id=""
+            className="input w-1/2"
+            value={limit}
+            onChange={(e) => {
+              setLimit(+e.target.value);
+              handleFilterChange();
+            }}
+          >
+            <option value={10}>Limit</option>
+            {Array.from({ length: 10 }, (_, index) => index + 1).map(
+              (value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ),
+            )}
+          </select>
+
           <div className="flex items-center">
             <RefreshButton
               handleFilterChange={handleFilterChange}
@@ -108,7 +131,14 @@ export default function Course() {
           </div>
         </div>
 
-        <ContentsTable data={data} isLoading={isLoading} courseId={id} />
+        <Pagination
+          data={data}
+          handleFilterChange={handleFilterChange}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+        />
+        <ContentsTable data={data?.data} isLoading={isLoading} courseId={id} />
       </div>
 
       {/* Add User Modal */}

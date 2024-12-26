@@ -7,6 +7,7 @@ import CoursesTable from '../components/courses/CoursesTable';
 import Layout from '../components/layout';
 import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
+import Pagination from '../components/shared/Pagination';
 import RefreshButton from '../components/shared/RefreshButton';
 import useAuth from '../hooks/useAuth';
 import CreateCourseRequest from '../models/course/CreateCourseRequest';
@@ -15,6 +16,9 @@ import courseService from '../services/CourseService';
 export default function Courses() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  const [orderDirection, setOrderDirection] = useState<'ASC' | 'DESC'>('DESC');
   const [isRefetching, setIsRefetching] = useState(false);
 
   const [addCourseShow, setAddCourseShow] = useState<boolean>(false);
@@ -27,6 +31,9 @@ export default function Courses() {
       courseService.findAll({
         name: name || undefined,
         description: description || undefined,
+        limit,
+        page,
+        orderDirection,
       }),
   );
 
@@ -92,6 +99,39 @@ export default function Courses() {
               }}
             />
           </div>
+          <select
+            name=""
+            id=""
+            className="input"
+            value={limit}
+            onChange={(e) => {
+              setLimit(+e.target.value);
+              handleFilterChange();
+            }}
+          >
+            <option value={10}>Limit</option>
+            {Array.from({ length: 10 }, (_, index) => index + 1).map(
+              (value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ),
+            )}
+          </select>
+          <select
+            name=""
+            id=""
+            className="input"
+            value={orderDirection}
+            onChange={(e) => {
+              setOrderDirection(e.target.value as 'ASC' | 'DESC');
+              handleFilterChange();
+            }}
+          >
+            <option value={'DESC'}>Direction</option>
+            <option value={'DESC'}>DESC</option>
+            <option value={'ASC'}>ASC</option>
+          </select>
           <div className="flex items-center">
             <RefreshButton
               handleFilterChange={handleFilterChange}
@@ -99,8 +139,14 @@ export default function Courses() {
             />
           </div>
         </div>
-
-        <CoursesTable data={data} isLoading={isLoading} />
+        <Pagination
+          data={data}
+          handleFilterChange={handleFilterChange}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+        />
+        <CoursesTable data={data?.data} isLoading={isLoading} />
       </div>
 
       <Modal show={addCourseShow}>

@@ -69,7 +69,7 @@ export default function ContentsTable({
         <Table columns={['Name', 'Description', 'Created']}>
           {isLoading
             ? null
-            : data.map(({ id, name, description, dateCreated }) => (
+            : data?.map(({ id, name, description, dateCreated }) => (
                 <tr key={id}>
                   <TableItem>{name}</TableItem>
                   <TableItem>{description}</TableItem>
@@ -107,7 +107,7 @@ export default function ContentsTable({
                 </tr>
               ))}
         </Table>
-        {!isLoading && data.length < 1 ? (
+        {!isLoading && data?.length < 1 ? (
           <div className="text-center my-5 text-gray-500">
             <h1>Empty</h1>
           </div>
