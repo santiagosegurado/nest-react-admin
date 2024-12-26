@@ -3,8 +3,10 @@ import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import UrbanoLogoWhite from '../../assets/urbano-logo-white.png';
+import { LAST_VISITED_COURSE_KEY } from '../../constants/localStorage.constants';
 import useAuth from '../../hooks/useAuth';
 import authService from '../../services/AuthService';
+import LocalStorageService from '../../services/LocalStorageService';
 import SidebarItem from './SidebarItem';
 
 interface SidebarProps {
@@ -19,6 +21,7 @@ export default function Sidebar({ className }: SidebarProps) {
   const handleLogout = async () => {
     await authService.logout();
     setAuthenticatedUser(null);
+    LocalStorageService.removeItem(LAST_VISITED_COURSE_KEY);
     history.push('/login');
   };
 
