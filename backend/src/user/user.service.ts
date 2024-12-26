@@ -5,7 +5,7 @@ import { ILike } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
 import { UserQuery } from './user.query';
-import { PaginationResponse } from './pagination-response.dto';
+import { PaginationResponse } from 'src/shared/pagination-response.dto';
 
 @Injectable()
 export class UserService {
