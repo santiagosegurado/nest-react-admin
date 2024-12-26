@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,9 +8,11 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -24,6 +27,7 @@ import { Course } from './course.entity';
 import { CourseQuery } from './course.query';
 import { CourseService } from './course.service';
 import { PaginationResponse } from 'src/shared/pagination-response.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('courses')
 @ApiBearerAuth()
@@ -102,5 +106,38 @@ export class CourseController {
     @Param('contentId') contentId: string,
   ): Promise<string> {
     return await this.contentService.delete(id, contentId);
+  }
+
+  @Post(':id/img')
+  @Roles(Role.Admin)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          return callback(
+            new BadRequestException('Only image files are allowed!'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  uploadReceipt(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('File is required!');
+    }
+    return this.courseService.uploadImg(id, file.originalname, file.buffer);
+  }
+
+
+  @Roles(Role.Admin)
+  @Get(':id/img')
+  getReceipt(@Param('id') id: string) {
+    return this.courseService.getImgUrl(id);
   }
 }
