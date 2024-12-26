@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { Loader, Plus, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
@@ -20,9 +20,10 @@ export default function Courses() {
   const [page, setPage] = useState(1);
   const [orderDirection, setOrderDirection] = useState<'ASC' | 'DESC'>('DESC');
   const [isRefetching, setIsRefetching] = useState(false);
-
+  const [localImg, setLocalImg] = useState<string | ArrayBuffer | null>(null);
   const [addCourseShow, setAddCourseShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { authenticatedUser } = useAuth();
   const { data, isLoading, refetch } = useQuery(
@@ -56,12 +57,51 @@ export default function Courses() {
     }
   };
 
+  const resetLocalImg = () => {
+    setLocalImg(null);
+  };
+
   const handleFilterChange = () => {
     setIsRefetching(true);
     refetch();
     setTimeout(() => {
       setIsRefetching(false);
     }, 500);
+  };
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const getImg = async (id: string) => {
+    const resp = await courseService.getImg(id);
+    return resp;
+  };
+
+  const uploadImage = async (id: string, file: File) => {
+    const resp = await courseService.uploadImage(id, file);
+    if (resp) {
+      getImg(id);
+    }
+  };
+
+  const onSelectedImg = (
+    id: string,
+    e: ChangeEvent<HTMLInputElement | null>,
+  ) => {
+    const files = e.target.files ? e.target.files : null;
+
+    if (!files) {
+      return;
+    }
+    const fr = new FileReader();
+    fr.onload = () => {
+      setLocalImg(fr.result);
+    };
+    fr.readAsDataURL(files[0]);
+    uploadImage(id, files[0]);
   };
 
   return (
@@ -146,7 +186,16 @@ export default function Courses() {
           page={page}
           setPage={setPage}
         />
-        <CoursesTable data={data?.data} isLoading={isLoading} />
+        <CoursesTable
+          data={data?.data}
+          isLoading={isLoading}
+          fileInputRef={fileInputRef}
+          handleButtonClick={handleButtonClick}
+          localImg={localImg}
+          onSelectedImg={onSelectedImg}
+          uploadImage={uploadImage}
+          resetLocalImg={resetLocalImg}
+        />
       </div>
 
       <Modal show={addCourseShow}>

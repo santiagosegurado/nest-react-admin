@@ -20,6 +20,7 @@ export default function Course() {
   const { id } = useParams<{ id: string }>();
   const { authenticatedUser } = useAuth();
 
+  const [CourseImg, setCourseImg] = useState(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [limit, setLimit] = useState(10);
@@ -68,6 +69,7 @@ export default function Course() {
   const { saveLastVisitedCourse } = useNews();
 
   useEffect(() => {
+    courseService.findOne(id).then((data) => setCourseImg(data.imgUrl));
     saveLastVisitedCourse(id);
   }, [id, saveLastVisitedCourse]);
 
@@ -75,6 +77,7 @@ export default function Course() {
     <Layout>
       <LayoutTitle
         title={!userQuery.isLoading ? `${userQuery.data.name} Contents` : ''}
+        imgUrl={CourseImg}
       />
       <div className="px-5 sm:px-10 py-5">
         {authenticatedUser.role !== 'user' ? (
