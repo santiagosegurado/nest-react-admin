@@ -63,6 +63,14 @@ On the first run, application inserts a new admin to the database.
 
 You can run the entire app using docker compose.
 
+Replace .env.dist to .env file and complete variables
+```
+AWS_BUCKET_NAME=
+AWS_ACCESS_KEY=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+```
+
 On root directory
 
 ```bash
@@ -82,6 +90,14 @@ First you have to postgresql installed on your computer.
 Edit the database properties on the backend/.env file.
 
 On backend directory
+
+### Complete Env Varialbes
+```
+AWS_BUCKET_NAME=
+AWS_ACCESS_KEY=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+```
 
 ### Installing the dependencies
 
