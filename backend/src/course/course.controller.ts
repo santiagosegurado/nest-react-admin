@@ -23,6 +23,7 @@ import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
 import { CourseQuery } from './course.query';
 import { CourseService } from './course.service';
+import { PaginationResponse } from 'src/shared/pagination-response.dto';
 
 @Controller('courses')
 @ApiBearerAuth()
@@ -41,7 +42,9 @@ export class CourseController {
   }
 
   @Get()
-  async findAll(@Query() courseQuery: CourseQuery): Promise<Course[]> {
+  async findAll(
+    @Query() courseQuery: CourseQuery,
+  ): Promise<PaginationResponse<Course>> {
     return await this.courseService.findAll(courseQuery);
   }
 
@@ -78,7 +81,7 @@ export class CourseController {
   async findAllContentsByCourseId(
     @Param('id') id: string,
     @Query() contentQuery: ContentQuery,
-  ): Promise<Content[]> {
+  ): Promise<PaginationResponse<Content>> {
     return await this.contentService.findAllByCourseId(id, contentQuery);
   }
 

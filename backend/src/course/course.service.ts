@@ -4,6 +4,7 @@ import { ILike } from 'typeorm';
 import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
 import { CourseQuery } from './course.query';
+import { PaginationResponse } from 'src/shared/pagination-response.dto';
 
 @Injectable()
 export class CourseService {
@@ -14,17 +15,67 @@ export class CourseService {
     }).save();
   }
 
-  async findAll(courseQuery: CourseQuery): Promise<Course[]> {
+  async findAll(courseQuery: CourseQuery): Promise<PaginationResponse<Course>> {
+    if (!courseQuery.page) {
+      courseQuery.page = 1;
+    }
+
+    if (!courseQuery.limit) {
+      courseQuery.limit = 10;
+    }
+
+    if (!courseQuery.orderBy) {
+      courseQuery.orderBy = 'dateCreated';
+    }
+
+    if (!courseQuery.orderDirection) {
+      courseQuery.orderDirection = 'DESC';
+    }
+
     Object.keys(courseQuery).forEach((key) => {
-      courseQuery[key] = ILike(`%${courseQuery[key]}%`);
+      if (
+        key !== 'page' &&
+        key !== 'limit' &&
+        key !== 'orderBy' &&
+        key !== 'orderDirection'
+      ) {
+        courseQuery[key] = ILike(`%${courseQuery[key]}%`);
+      }
     });
-    return await Course.find({
-      where: courseQuery,
-      order: {
-        name: 'ASC',
-        description: 'ASC',
-      },
+
+    const where: any = {};
+    for (const key in courseQuery) {
+      if (courseQuery[key] !== undefined) {
+        if (
+          key !== 'page' &&
+          key !== 'limit' &&
+          key !== 'orderBy' &&
+          key !== 'orderDirection'
+        ) {
+          where[key] = courseQuery[key];
+        }
+      }
+    }
+
+    const order = {};
+    if (courseQuery.orderBy) {
+      order[courseQuery.orderBy] =
+        courseQuery.orderDirection?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    }
+    
+    const [data, total] = await Course.findAndCount({
+      where,
+      order,
+      skip: (courseQuery.page - 1) * courseQuery.limit,
+      take: courseQuery.limit,
     });
+
+    return {
+      data,
+      total,
+      page: +courseQuery.page,
+      limit: +courseQuery.limit,
+    };
   }
 
   async findById(id: string): Promise<Course> {
