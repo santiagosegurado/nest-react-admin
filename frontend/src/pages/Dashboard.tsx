@@ -45,6 +45,7 @@ export default function Dashboard() {
               <div className="card shadow text-white bg-blue-500 flex-1">
                 <h1 className="font-semibold sm:text-4xl text-center mb-3">
                   {data?.numberOfUsers}
+
                 </h1>
                 <p className="text-center sm:text-lg font-semibold">Users</p>
               </div>

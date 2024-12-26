@@ -40,8 +40,10 @@ class UserService {
     return await apiService.post(`/api/courses/${id}/img`, formData);
   }
 
+
   async getImg(id: string): Promise<{ imgUrl: string }> {
     return (await apiService.get(`/api/courses/${id}/img`)).data;
+
   }
 }
 
