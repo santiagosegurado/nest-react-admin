@@ -44,7 +44,7 @@ export default function UpdateProfile() {
           className="flex mt-3 flex-col gap-3 justify-center md:w-1/2 lg:w-1/3 mx-auto items-center"
           onSubmit={handleSubmit(handleUpdateUser)}
         >
-          <h1 className="font-semibold text-4xl mb-10">{`Welcome ${data.firstName}`}</h1>
+          <h1 className="font-semibold text-4xl mb-10">Update your profile</h1>
           <hr />
           <div className="flex gap-3 w-full">
             <div className="w-1/2">

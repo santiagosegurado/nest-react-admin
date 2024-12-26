@@ -6,6 +6,7 @@ import Contents from './pages/Contents';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import Profile from './pages/Profile';
 import Users from './pages/Users';
 import { AuthRoute, PrivateRoute } from './Route';
 import authService from './services/AuthService';
@@ -40,7 +41,7 @@ export default function App() {
         <PrivateRoute exact path="/users" component={Users} roles={['admin']} />
         <PrivateRoute exact path="/courses" component={Courses} />
         <PrivateRoute exact path="/courses/:id" component={Contents} />
-
+        <PrivateRoute exact path="/profile" component={Profile} />
         <AuthRoute exact path="/login" component={Login} />
       </Switch>
     </Router>
