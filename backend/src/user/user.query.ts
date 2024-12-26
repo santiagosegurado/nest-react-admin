@@ -3,4 +3,6 @@ export class UserQuery {
   lastName?: string;
   username?: string;
   role?: string;
+  page?:number;
+  limit?:number;
 }
