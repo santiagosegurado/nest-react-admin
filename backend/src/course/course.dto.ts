@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -20,4 +20,12 @@ export class UpdateCourseDto {
   @IsNotEmpty()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  fileName?: string;
+
+  @IsOptional()
+  @IsUrl()
+  imgUrl?: string;
 }
