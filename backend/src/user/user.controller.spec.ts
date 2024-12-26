@@ -6,32 +6,37 @@ import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UserService } from './user.service';
 
 const MockService = {
-  findAll: jest.fn().mockResolvedValue([
-    {
-      id: 'test1',
-      firstName: 'test1',
-      lastName: 'test1',
-      username: 'test1',
-      isActive: true,
-      role: Role.Admin,
-    },
-    {
-      id: 'test2',
-      firstName: 'test2',
-      lastName: 'test2',
-      username: 'test2',
-      isActive: true,
-      role: Role.Admin,
-    },
-    {
-      id: 'test3',
-      firstName: 'test3',
-      lastName: 'test3',
-      username: 'test3',
-      isActive: true,
-      role: Role.Admin,
-    },
-  ]),
+  findAll: jest.fn().mockResolvedValue({
+    data: [
+      {
+        id: 'test1',
+        firstName: 'test1',
+        lastName: 'test1',
+        username: 'test1',
+        isActive: true,
+        role: Role.Admin,
+      },
+      {
+        id: 'test2',
+        firstName: 'test2',
+        lastName: 'test2',
+        username: 'test2',
+        isActive: true,
+        role: Role.Admin,
+      },
+      {
+        id: 'test3',
+        firstName: 'test3',
+        lastName: 'test3',
+        username: 'test3',
+        isActive: true,
+        role: Role.Admin,
+      },
+    ],
+    total: 3,
+    limit: 10,
+    page: 1,
+  }),
   save: jest.fn().mockImplementation((createUserDto: CreateUserDto) => {
     return {
       id: 'testid',
@@ -100,10 +105,10 @@ describe('UserController', () => {
     it('should get the list of users', async () => {
       const users = await controller.findAll({});
       expect(typeof users).toBe('object');
-      expect(users[0].firstName).toBe('test1');
-      expect(users[1].lastName).toBe('test2');
-      expect(users[2].username).toBe('test3');
-      expect(users.length).toBe(3);
+      expect(users.data[0].firstName).toBe('test1');
+      expect(users.data[1].lastName).toBe('test2');
+      expect(users.data[2].username).toBe('test3');
+      expect(users.data.length).toBe(3);
     });
   });
 
