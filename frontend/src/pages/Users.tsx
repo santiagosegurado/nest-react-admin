@@ -6,6 +6,7 @@ import { useQuery } from 'react-query';
 import Layout from '../components/layout';
 import LayoutTitle from '../components/shared/LayoutTitle';
 import Modal from '../components/shared/Modal';
+import Pagination from '../components/shared/Pagination';
 import RefreshButton from '../components/shared/RefreshButton';
 import UsersTable from '../components/users/UsersTable';
 import useAuth from '../hooks/useAuth';
@@ -19,22 +20,24 @@ export default function Users() {
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [role, setRole] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [isRefetching, setIsRefetching] = useState(false);
 
   const [addUserShow, setAddUserShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
   const { data, isLoading, refetch } = useQuery(
-    ['users', firstName, lastName, username, role],
+    ['users', firstName, lastName, username, role, page, limit],
     async () => {
-      return (
-        await userService.findAll({
-          firstName: firstName || undefined,
-          lastName: lastName || undefined,
-          username: username || undefined,
-          role: role || undefined,
-        })
-      ).filter((user) => user.id !== authenticatedUser.id);
+      return await userService.findAll({
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+        username: username || undefined,
+        role: role || undefined,
+        page,
+        limit,
+      });
     },
   );
 
@@ -125,6 +128,25 @@ export default function Users() {
               <option value="editor">Editor</option>
               <option value="admin">Admin</option>
             </select>
+            <select
+              name=""
+              id=""
+              className="input w-1/2"
+              value={limit}
+              onChange={(e) => {
+                setLimit(+e.target.value);
+                handleFilterChange();
+              }}
+            >
+              <option value={10}>Limit</option>
+              {Array.from({ length: 10 }, (_, index) => index + 1).map(
+                (value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ),
+              )}
+            </select>
           </div>
           <div className="flex items-center">
             <RefreshButton
@@ -134,7 +156,17 @@ export default function Users() {
           </div>
         </div>
 
-        <UsersTable data={data} isLoading={isLoading} />
+        <Pagination
+          data={data}
+          handleFilterChange={handleFilterChange}
+          limit={limit}
+          page={page}
+          setPage={setPage}
+        />
+        <UsersTable
+          data={data?.data.filter((user) => user.id !== authenticatedUser.id)}
+          isLoading={isLoading}
+        />
       </div>
 
       {/* Add User Modal */}

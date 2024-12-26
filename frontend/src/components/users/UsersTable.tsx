@@ -58,7 +58,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
         <Table columns={['Name', 'Username', 'Status', 'Role', 'Created']}>
           {isLoading
             ? null
-            : data.map(
+            : data?.map(
                 ({ id, firstName, lastName, role, isActive, username }) => (
                   <tr key={id}>
                     <TableItem>{`${firstName} ${lastName}`}</TableItem>
@@ -74,7 +74,9 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
                         </span>
                       )}
                     </TableItem>
-                    <TableItem>{role}</TableItem>
+                    <TableItem>
+                      <span className="capitalize">{role}</span>
+                    </TableItem>
                     <TableItem className="text-right">
                       <button
                         className="text-indigo-600 hover:text-indigo-900 focus:outline-none"
@@ -107,7 +109,7 @@ export default function UsersTable({ data, isLoading }: UsersTableProps) {
               )}
         </Table>
 
-        {!isLoading && data.length < 1 ? (
+        {!isLoading && data?.length < 1 ? (
           <div className="text-center my-5 text-gray-500">
             <h1>Empty</h1>
           </div>
