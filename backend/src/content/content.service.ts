@@ -5,6 +5,7 @@ import { CourseService } from '../course/course.service';
 import { CreateContentDto, UpdateContentDto } from './content.dto';
 import { Content } from './content.entity';
 import { ContentQuery } from './content.query';
+import { PaginationResponse } from 'src/shared/pagination-response.dto';
 
 @Injectable()
 export class ContentService {
@@ -24,18 +25,69 @@ export class ContentService {
     }).save();
   }
 
-  async findAll(contentQuery: ContentQuery): Promise<Content[]> {
+  async findAll(
+    contentQuery: ContentQuery,
+  ): Promise<PaginationResponse<Content>> {
+    if (!contentQuery.page) {
+      contentQuery.page = 1;
+    }
+
+    if (!contentQuery.limit) {
+      contentQuery.limit = 10;
+    }
+
+    if (!contentQuery.orderBy) {
+      contentQuery.orderBy = 'dateCreated';
+    }
+
+    if (!contentQuery.orderDirection) {
+      contentQuery.orderDirection = 'DESC';
+    }
+
     Object.keys(contentQuery).forEach((key) => {
-      contentQuery[key] = ILike(`%${contentQuery[key]}%`);
+      if (
+        key !== 'page' &&
+        key !== 'limit' &&
+        key !== 'orderBy' &&
+        key !== 'orderDirection'
+      ) {
+        contentQuery[key] = ILike(`%${contentQuery[key]}%`);
+      }
     });
 
-    return await Content.find({
-      where: contentQuery,
-      order: {
-        name: 'ASC',
-        description: 'ASC',
-      },
+    const where: any = {};
+    for (const key in contentQuery) {
+      if (contentQuery[key] !== undefined) {
+        if (
+          key !== 'page' &&
+          key !== 'limit' &&
+          key !== 'orderBy' &&
+          key !== 'orderDirection'
+        ) {
+          where[key] = contentQuery[key];
+        }
+      }
+    }
+
+    const order = {};
+    if (contentQuery.orderBy) {
+      order[contentQuery.orderBy] =
+        contentQuery.orderDirection?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    }
+
+    const [data, total] = await Content.findAndCount({
+      where,
+      order,
+      skip: (contentQuery.page - 1) * contentQuery.limit,
+      take: contentQuery.limit,
     });
+
+    return {
+      data,
+      total,
+      page: +contentQuery.page,
+      limit: +contentQuery.limit,
+    };
   }
 
   async findById(id: string): Promise<Content> {
@@ -62,20 +114,71 @@ export class ContentService {
     return content;
   }
 
+
   async findAllByCourseId(
     courseId: string,
     contentQuery: ContentQuery,
-  ): Promise<Content[]> {
+  ): Promise<PaginationResponse<Content>> {
+    if (!contentQuery.page) {
+      contentQuery.page = 1;
+    }
+  
+    if (!contentQuery.limit) {
+      contentQuery.limit = 10;
+    }
+  
+    if (!contentQuery.orderBy) {
+      contentQuery.orderBy = 'dateCreated';
+    }
+  
+    if (!contentQuery.orderDirection) {
+      contentQuery.orderDirection = 'DESC';
+    }
+  
     Object.keys(contentQuery).forEach((key) => {
-      contentQuery[key] = ILike(`%${contentQuery[key]}%`);
+      if (
+        key !== 'page' &&
+        key !== 'limit' &&
+        key !== 'orderBy' &&
+        key !== 'orderDirection'
+      ) {
+        contentQuery[key] = ILike(`%${contentQuery[key]}%`);
+      }
     });
-    return await Content.find({
-      where: { courseId, ...contentQuery },
-      order: {
-        name: 'ASC',
-        description: 'ASC',
-      },
+  
+    const where: any = { courseId };
+    for (const key in contentQuery) {
+      if (contentQuery[key] !== undefined) {
+        if (
+          key !== 'page' &&
+          key !== 'limit' &&
+          key !== 'orderBy' &&
+          key !== 'orderDirection'
+        ) {
+          where[key] = contentQuery[key];
+        }
+      }
+    }
+  
+    const order = {};
+    if (contentQuery.orderBy) {
+      order[contentQuery.orderBy] =
+        contentQuery.orderDirection?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    }
+  
+    const [data, total] = await Content.findAndCount({
+      where,
+      order,
+      skip: (contentQuery.page - 1) * contentQuery.limit,
+      take: contentQuery.limit,
     });
+  
+    return {
+      data,
+      total,
+      page: +contentQuery.page,
+      limit: +contentQuery.limit,
+    };
   }
 
   async update(
