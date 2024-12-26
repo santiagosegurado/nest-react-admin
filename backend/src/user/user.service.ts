@@ -5,6 +5,7 @@ import { ILike } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.entity';
 import { UserQuery } from './user.query';
+import { PaginationResponse } from './pagination-response.dto';
 
 @Injectable()
 export class UserService {
@@ -23,20 +24,46 @@ export class UserService {
     return User.create(createUserDto).save();
   }
 
-  async findAll(userQuery: UserQuery): Promise<User[]> {
+  async findAll(userQuery: UserQuery): Promise<PaginationResponse<User>> {
+    if (!userQuery.page) {
+      userQuery.page = 1;
+    }
+
+    if (!userQuery.limit) {
+      userQuery.limit = 10;
+    }
+
     Object.keys(userQuery).forEach((key) => {
-      if (key !== 'role') {
+      if (key !== 'role' && key !== 'page' && key !== 'limit') {
         userQuery[key] = ILike(`%${userQuery[key]}%`);
       }
     });
 
-    return User.find({
-      where: userQuery,
+    const where: any = {};
+    for (const key in userQuery) {
+      if (userQuery[key] !== undefined) {
+        if (key !== 'page' && key !== 'limit') {
+          where[key] = userQuery[key];
+        }
+      }
+    }
+
+    const [data, total] = await User.findAndCount({
+      where,
       order: {
         firstName: 'ASC',
         lastName: 'ASC',
       },
+      skip: (userQuery.page - 1) * userQuery.limit,
+      take: userQuery.limit,
     });
+
+    return {
+      data,
+      total,
+      page: +userQuery.page,
+      limit: +userQuery.limit,
+    };
   }
 
   async findById(id: string): Promise<User> {
