@@ -22,6 +22,12 @@ export class Course extends BaseEntity {
   @Column()
   dateCreated: Date;
 
+  @Column({ nullable: true })
+  fileName: string;
+  
+  @Column({ nullable: true })
+  imgUrl: string;
+
   @OneToMany(() => Content, (content) => content.course)
   contents: Content[];
 }
