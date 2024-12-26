@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader, Plus, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
@@ -11,6 +11,7 @@ import Modal from '../components/shared/Modal';
 import Pagination from '../components/shared/Pagination';
 import RefreshButton from '../components/shared/RefreshButton';
 import useAuth from '../hooks/useAuth';
+import useNews from '../hooks/useNews';
 import CreateContentRequest from '../models/content/CreateContentRequest';
 import contentService from '../services/ContentService';
 import courseService from '../services/CourseService';
@@ -63,6 +64,12 @@ export default function Course() {
       setError(error.response.data.message);
     }
   };
+
+  const { saveLastVisitedCourse } = useNews();
+
+  useEffect(() => {
+    saveLastVisitedCourse(id);
+  }, [id, saveLastVisitedCourse]);
 
   return (
     <Layout>
